@@ -1,0 +1,42 @@
+version: '3.6'
+
+volumes:
+  clj_test_containers_1:
+    driver: local
+
+networks:
+  clj_test_containers_1:
+    driver: bridge
+
+services:
+  clj_test_containers_1:
+    container_name: clj-test-containers-1
+    image: clojure-dev:0.0
+    environment:
+      - TERM=xterm-256color
+      - LANG=c.UTF-8
+    ports:
+      - 0.0.0.0:${REPL_PORT:-9876}:${REPL_PORT:-9876}
+    volumes:
+      - clj_test_containers_1:/root
+
+      # If using git from within container.
+      - $HOME/.gitconfig:/root/.gitconfig:ro
+      - $HOME/.gnupg:/root/.gnupg:ro
+      - $HOME/.ssh:$HOME/.ssh:ro
+
+      # If using tmux in the container.
+      - $HOME/.tmux.conf:/root/.tmux.conf:ro
+      - $HOME/.tmux:/root/.tmux:ro
+
+      # If using neovim in the container.
+      - $HOME/.config/nvim:/root/.config/nvim:ro
+      # - $HOME/.cache/nvim:/root/.cache/nvim:ro
+
+      # Map the local project repo into the container.
+      - $PROJECT_HOME:/root/project
+
+      # Allow container to communicate with host docker.
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    networks:
+      - clj_test_containers_1
